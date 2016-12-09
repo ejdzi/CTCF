@@ -1,8 +1,8 @@
 def clusters(): #tworzenie pliku z wybranymi Raw PETsami, ktore lapia sie w obszary kotwic 
-	f = open("GM12878_anchors.txt","r+")
-	g = open("GSM1872886_GM12878_CTCF_PET_clusters.txt","r+")
+	f = open("reprezentacja_anchors.bed","r+") #"GM12878_anchors.txt","r+"
+	g = open("raw_PETs_anchors.txt","r+") #"GSM1872886_GM12878_CTCF_PET_clusters.txt","r+"
 	slownik={}
-	h = open("raw_PETs_anchors.txt","w+") #ten plik to Raw PETs
+	h = open("raw_PETs_reprezentacja.txt","w+") #ten plik to Raw PETs "raw_PETs_anchors.txt","w+"
 	for line in f:
 		l = line.split()
 		if l[0] not in slownik.keys():
@@ -25,12 +25,13 @@ def clusters(): #tworzenie pliku z wybranymi Raw PETsami, ktore lapia sie w obsz
 					kotwica_k = i
 					zmienna_k = True
 			if zmienna_p and zmienna_k:
-				h.write(l[0] + "\t" + l[1] + "\t" + l[2] + "\t" + l[4] + "\t" + l[5] + "\t" + l[6] + "\t" + str(kotwica_p) + "\t" +  str(kotwica_k) + "\n")
+				#h.write(l[0] + "\t" + l[1] + "\t" + l[2] + "\t" + l[4] + "\t" + l[5] +"\t" + l[6] +"\t" + str(kotwica_p) + "\t" +  str(kotwica_k) + "\n")
+				h.write(l[0] + "\t" + l[1] + "\t" + l[2] + "\t" + l[3] + "\t" + l[4] +"\t" + l[5] + "\n") #"\t" + str(kotwica_p) + "\t" +  str(kotwica_k) + "\n")
 	return slownik
 
 
 def ctcf(): #tworzenie slownika wszystkich znalezionych CTCFow w obszarach kotwic --> dla reprezentacji sekwencji kotwic!
-	f = open("reprezentacja_ctcf.bed","r+")
+	f = open("reprezentacja_ctcf.bed","r+") # to jest dla reprezentacji
 	slownik = {}
 	for line in f:
 		l = line.split()
@@ -41,7 +42,8 @@ def ctcf(): #tworzenie slownika wszystkich znalezionych CTCFow w obszarach kotwi
 			slownik[ide].append((l[3],l[4],l[5]))
 	return slownik
 
-
+#trzeba teraz sprawdzac dla kazdej linii, czy w zakresie ich kotwic obu naraz znajduja sie jakis CTCF, jesli nie, to wtedy problem, niech sie takie wypsiza. 
+# a jesli tak, no to ekstra --. to jest do zrobienia
 
 
 
@@ -85,7 +87,7 @@ def dynamic(l=[(0,5,15),(4,9,18),(8,21,19),(10,20,12),(25,30,25)]): #posortowane
 	interwaly=[]
 	for i in interwaly_wybrane:
 		interwaly.append(lista[i])
-	return interwaly
+	return interwaly #, s
 		
 
 
@@ -98,12 +100,34 @@ def lokal(m,w=[], lista=[]): #daje indeksy poprawnych interwalow
 		return lokal(w[m][1],w,lista) 
 
 	
+def niezachodzace(slownik):
+	s = {}
+	w = open("niezachodzace_ctcf_reprezentacja.bed","w+")
+	for k in slownik.keys():
+		lista = slownik[k]
+		l = sorted(lista,key=lambda x: x[0])
+		ctcfy= dynamic(l)
+		kk = k.split("\t")[0]
+		if kk not in s.keys():
+			s[kk] = ctcfy
+		elif kk in s.keys():
+			s[kk].append(ctcfy)
+	return s
+
+'''teraz jak mam slownik z niezachodzacymi ctcfami dla kazdej kotwicy, musze przejsc po pliku z petsami od reprezentacji i sprawdzic, czy dla kazdej linii 
+koniec lub poczatek petsa lapie sie do ktoregos zakresu ctcfa'''
 
 
 
-				 
-		
-		
+def pets_vs_ctcf():
+	slownik = niezachodzace(ctcf())
+	f = open("raw_PETs_reprezentacja.txt","r+")
+	for line in f:
+		l = line.split()
+		if l[
+
+
+
 
 
 
